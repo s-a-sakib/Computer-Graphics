@@ -1,7 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
 
 def brezenham_line(x1, y1, x2, y2):
+
     dx = abs(x2 - x1)
     dy = abs(y2 - y1)
 
@@ -10,10 +13,11 @@ def brezenham_line(x1, y1, x2, y2):
 
     err = dx - dy
 
-    prints = []
+    points = []
 
     while True:
-        prints.append([x1, y1])
+
+        points.append([x1, y1])
 
         if x1 == x2 and y1 == y2:
             break
@@ -25,19 +29,49 @@ def brezenham_line(x1, y1, x2, y2):
             x1 += sx
 
         if err2 < dx:
-            err = err + dx
             y1 += sy
+            err += dx
 
-    return prints
-
-# points = brezenham_line(2, 3, 12, 9)
-
-# print("Line Points:\n", points)
+    return points
 
 
-# plt.plot([p[0] for p in points], [p[1] for p in points], 'bo-')
-# plt.title("Bresenham's Line Drawing Algorithm")
-# plt.xlabel("X-axis")
-# plt.ylabel("Y-axis")
-# plt.grid()
-# plt.show()
+# Generate line points
+line_points = brezenham_line(2, 3, 12, 9)
+
+
+# Create figure
+fig, ax = plt.subplots(figsize=(10, 10))
+
+ax.set_xlim( 0, 14)
+ax.set_ylim(0, 14)
+
+ax.set_aspect("equal")
+
+
+line, = ax.plot([], [], 'bo-', linewidth=2)
+
+title = ax.set_title("Bresenham Line Drawing")
+
+
+def update(frame):
+
+    points = np.array(line_points[:frame + 1])
+
+    line.set_data(points[:, 0], points[:, 1])
+
+    title.set_text(
+        f"Bresenham Line Drawing - Point {frame + 1}"
+    )
+
+    return line, title
+
+
+animation = FuncAnimation(
+    fig,
+    update,
+    frames=len(line_points),
+    interval=1000,
+    repeat=False
+)
+plt.grid(True)
+plt.show()

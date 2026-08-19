@@ -1,37 +1,56 @@
+import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
-def DDA_Line(x1, y1, x2, y2):
+step = 0
+
+def DDA(x1, y1, x2, y2):
     dx = x2 - x1
     dy = y2 - y1
 
-    steps = max(abs(dx), abs(dy))
+    step = max(abs(dx), abs(dy))
 
-    x_inc = dx / steps
-    y_inc = dy / steps
+    x_inc = dx / step
+    y_inc = dy / step
 
     points = []
-    if steps == 0:
+
+    if step == 0:
+        return np.array([x1, y1])
+
+    for i in range(step + 1):
         points.append([round(x1), round(y1)])
-        return points
-
-    x , y = x1 , y1
-
-    for i in range(steps):
-        points.append([round(x), round(y)])
-        x += x_inc
-        y += y_inc
-
+        x1 += x_inc
+        y1 += y_inc
 
     return points
 
-# points = DDA_Line(2, 3, 12, 9)
+line_points = DDA(2, 3, 12, 9)
 
-# print("Line Points:\n", points)
+print(line_points)
 
+fig , ax = plt.subplots(figsize = (10,10))
 
-# plt.plot([p[0] for p in points], [p[1] for p in points], 'bo-')
-# plt.title("DDA Line Drawing Algorithm")
-# plt.xlabel("X-axis")
-# plt.ylabel("Y-axis")
-# plt.grid()
-# plt.show()
+ax.set_ylim(0, 14)
+ax.set_xlim(0, 14)
+ax.set_aspect("equal")
+
+title = ax.set_title("DDA line Drawing Algorithm ")
+line,  = ax.plot([],[],'bo-', linewidth = 2)
+
+def update(frame):
+    points = np.array(line_points[:frame + 1])
+    line.set_data(points[:,0], points[:,1])
+    title.set_text(f"DDA line Drawing Algorithm -- {frame}")
+    return line, title
+
+animation = FuncAnimation(
+    fig,
+    update,
+    frames= len(line_points) + 1,
+    interval = 1000,
+    repeat = False
+)
+
+plt.grid(True)
+plt.show()

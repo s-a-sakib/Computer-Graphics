@@ -1,70 +1,78 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.animation import FuncAnimation
 
-def translate(points, translation_vector):
-    return points + translation_vector
+def translate(point, traslation_vector):
+    return point + traslation_vector
 
 def rotate(points, angle):
-    angle_rad = np.radians(angle)
+
+    angle = np.radians(angle)
+
     rotated = []
-    
+
     for x, y in points:
+
         r = np.sqrt(x**2 + y**2)
-        angle1 = np.arctan2(y, x)      # handles all quadrants + x=0
-        x_new = r * np.cos(angle1 + angle_rad)
-        y_new = r * np.sin(angle1 + angle_rad)
+        fi = np.arctan2(y, x)
+
+        x_new = r * np.cos(angle + fi)
+        y_new = r * np.sin(angle + fi)
+
         rotated.append([x_new, y_new])
-    
-    return rotated
+
+    return np.array(rotated)
 
 def scale(points, sx, sy):
-    return [[x * sx, y * sy] for x, y in points]
+    return np.array([[x * sx, y * sy] for x, y in points])
 
-# points = np.array([[1, 1],
-#     [4, 1],
-#     [2.5, 4],
-#     [1, 1]])
-
-# translation_vector = np.array([3, 3])
-# angle = 60  
-# scaling_factors = [2, 3]
-
-# # Apply transformations
-# translated_points = translate(points, translation_vector)
-# rotated_points = rotate(points, angle)
-# scaled_points = scale(points, *scaling_factors)
-
-# print("Original Points:\n", points)
-# print("Translated Points:\n", translated_points)
-# print("Rotated Points:\n", rotated_points)
-# print("Scaled Points:\n", scaled_points)
+points = np.array([
+    [1,1], [4,1], [2.5,4], [1,1]
+])
 
 
-# # Plotting
-# plt.figure(figsize=(10, 10))
+translation = np.array([5, 5])
+angle = 60
+Scale_factor = np.array([3, 4])
 
-# plt.subplot(2, 2, 1)
-# plt.title("Translated Points")
-# plt.plot(points[:, 0], points[:, 1], 'bo-', label='Original')
-# plt.plot(translated_points[:, 0], translated_points[:, 1], 'ro-', label='Translated')
-# plt.legend()
-# plt.grid()
+fig, ax = plt.subplots(figsize=(8, 8))
 
-# plt.subplot(2, 2, 2)
-# plt.title("Rotated Points")
-# rotated_points = np.array(rotated_points)
-# plt.plot(points[:, 0], points[:, 1], 'bo-', label='Original')
-# plt.plot(rotated_points[:, 0], rotated_points[:, 1], 'ro-', label='Rotated')
-# plt.legend()
-# plt.grid()
 
-# plt.subplot(2, 2, 3)
-# plt.title("Scaled Points")
-# scaled_points = np.array(scaled_points)
-# plt.plot(points[:, 0], points[:, 1], 'bo-', label='Original')
-# plt.plot(scaled_points[:, 0], scaled_points[:, 1], 'ro-', label='Scaled')
-# plt.legend()
-# plt.grid()
-# plt.tight_layout()
-# plt.show()
+def update(frame):
 
+    ax.clear()
+    ax.set_xlim(-10,20)
+    ax.set_ylim(-10,20)
+
+    ax.grid()
+    ax.set_title("2D Transformations")
+
+    # Oridinal Image
+    ax.plot(points[:,0], points[:,1], label = "Oridinal")
+
+    # Translation
+    translate_point = translate(points, translation * frame / 100)
+    ax.plot(translate_point[:,0], translate_point[:,1],  label = "Translated")
+
+    # Rotation
+    rotated_point = rotate(points, angle * frame/100)
+    ax.plot(rotated_point[:,0], rotated_point[:,1],  label = "Rotated")
+
+    # Scaled
+    scale_x = 1 + ((Scale_factor[0] - 1) * frame) / 100
+    scale_y = 1 + ((Scale_factor[1] - 1) * frame) / 100
+    
+    scaled_points = scale(points, scale_x, scale_y)    
+    ax.plot(scaled_points[:, 0], scaled_points[:, 1],label="Scaled")
+
+    ax.legend()
+
+animation = FuncAnimation(
+    fig,
+    update,
+    frames=100,
+    interval = 50,
+    repeat = False
+)
+
+plt.show()
